@@ -32,6 +32,127 @@
             text-align: center;
         }
 
+        .trades-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .add-trade-button {
+            padding: 10px 20px;
+            border: 2px dashed #333;
+            border-radius: 6px;
+            background: transparent;
+            color: #333;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1em;
+            transition: all 0.2s ease;
+        }
+
+        .add-trade-button:hover {
+            background: #f5f5f5;
+            border-color: #0066cc;
+            color: #0066cc;
+        }
+
+        .trades-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 10px;
+        }
+
+        .trade-tab {
+            padding: 10px 20px;
+            border: none;
+            border-bottom: 3px solid transparent;
+            background: transparent;
+            color: #666;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1em;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .trade-tab:hover {
+            color: #333;
+        }
+
+        .trade-tab.active {
+            color: white;
+            background: #333;
+            border-bottom-color: #333;
+            border-radius: 4px;
+        }
+
+        .trade-tab-name-input {
+            border: none;
+            background: transparent;
+            color: inherit;
+            font-weight: 600;
+            font-size: 1em;
+            cursor: pointer;
+            min-width: 100px;
+            padding: 0;
+            border-bottom: 1px dashed transparent;
+        }
+
+        .trade-tab.active .trade-tab-name-input {
+            border-bottom-color: rgba(255,255,255,0.3);
+            color: white;
+        }
+
+        .trade-tab-name-input:focus {
+            outline: none;
+            border-bottom-color: currentColor;
+        }
+
+        .trade-tab-delete {
+            background: transparent;
+            border: none;
+            color: inherit;
+            cursor: pointer;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            font-size: 1.2em;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .trade-tab:hover .trade-tab-delete {
+            opacity: 1;
+        }
+
+        .trade-tab.active .trade-tab-delete {
+            opacity: 1;
+        }
+
+        .trade-tab-delete:hover {
+            color: #ff6b6b;
+        }
+
+        .trade-content {
+            display: none;
+        }
+
+        .trade-content.active {
+            display: block;
+        }
+
         .trades-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
@@ -308,7 +429,14 @@
 <body>
     <div class="container">
         <h1>Trade Checklist</h1>
-        <div class="trades-grid" id="tradesContainer"></div>
+        
+        <div class="trades-header">
+            <div class="trades-tabs" id="tradesTabs"></div>
+            <button class="add-trade-button" onclick="addNewTrade()">+ Add Trade</button>
+        </div>
+
+        <div id="tradesContent"></div>
+
         <div class="status-legend">
             <div class="legend-item">
                 <div class="legend-box not-done"></div>
@@ -322,8 +450,9 @@
     </div>
 
     <script>
-        const DEFAULTS = [
+        let DEFAULTS = [
             {
+                id: 'construction',
                 name: 'Construction',
                 color: '#a5d6a7',
                 phases: [
@@ -384,6 +513,7 @@
                 ]
             },
             {
+                id: 'drainage',
                 name: 'Drainage',
                 color: '#80cbc4',
                 phases: [
@@ -429,22 +559,53 @@
         ];
 
         const state = {
-            addedPhases: new Set()
+            addedPhases: new Set(),
+            activeTrade: DEFAULTS[0].id
         };
 
         function renderTrades() {
-            const container = document.getElementById('tradesContainer');
-            container.innerHTML = '';
+            renderTabs();
+            renderTradeContent();
+            saveState();
+        }
 
-            DEFAULTS.forEach((trade, tradeIdx) => {
-                const card = document.createElement('div');
-                card.className = 'trade-card';
-                card.style.backgroundColor = trade.color;
+        function renderTabs() {
+            const tabsContainer = document.getElementById('tradesTabs');
+            tabsContainer.innerHTML = '';
+
+            DEFAULTS.forEach(trade => {
+                const isActive = state.activeTrade === trade.id;
+                const tab = document.createElement('button');
+                tab.className = `trade-tab ${isActive ? 'active' : ''}`;
+                tab.style.borderBottomColor = trade.color;
+                if (isActive) {
+                    tab.style.backgroundColor = trade.color;
+                }
+
+                tab.innerHTML = `
+                    <input type="text" class="trade-tab-name-input" value="${trade.name}" onchange="updateTradeName('${trade.id}', this.value)" onclick="event.stopPropagation()">
+                    <button class="trade-tab-delete" onclick="deleteTrade('${trade.id}'); event.stopPropagation();">×</button>
+                `;
+
+                tab.onclick = () => switchTrade(trade.id);
+                tabsContainer.appendChild(tab);
+            });
+        }
+
+        function renderTradeContent() {
+            const contentContainer = document.getElementById('tradesContent');
+            contentContainer.innerHTML = '';
+
+            DEFAULTS.forEach(trade => {
+                const isActive = state.activeTrade === trade.id;
+                const tradeContent = document.createElement('div');
+                tradeContent.className = `trade-content ${isActive ? 'active' : ''}`;
+                tradeContent.id = `trade-${trade.id}`;
 
                 let phasesHTML = '<div class="phases-container">';
                 
                 trade.phases.forEach((phase, phaseIdx) => {
-                    const phaseId = `${tradeIdx}-${phaseIdx}`;
+                    const phaseId = `${trade.id}-${phaseIdx}`;
                     const isAdded = state.addedPhases.has(phaseId);
                     const orderText = phase.order ? ` <span class="phase-order">(${phase.order})</span>` : '';
                     
@@ -494,44 +655,129 @@
                 });
 
                 phasesHTML += '</div>';
-                card.innerHTML = `<h2>${trade.name}</h2>${phasesHTML}`;
-                container.appendChild(card);
+                tradeContent.innerHTML = `<div class="trades-grid"><div class="trade-card" style="background-color: ${trade.color};"><h2>${trade.name}</h2>${phasesHTML}</div></div>`;
+                contentContainer.appendChild(tradeContent);
             });
         }
 
-        function toggleItemDone(itemId) {
-            const [tradeIdx, phaseIdx, itemIdx] = itemId.split('-').map(Number);
-            const item = DEFAULTS[tradeIdx].phases[phaseIdx].items[itemIdx];
-            item.done = !item.done;
+        function switchTrade(tradeId) {
+            state.activeTrade = tradeId;
             renderTrades();
-            saveState();
+        }
+
+        function updateTradeName(tradeId, newName) {
+            const trade = DEFAULTS.find(t => t.id === tradeId);
+            if (trade) {
+                trade.name = newName;
+                renderTrades();
+            }
+        }
+
+        function deleteTrade(tradeId) {
+            if (DEFAULTS.length <= 1) {
+                alert('You must have at least one trade');
+                return;
+            }
+            DEFAULTS = DEFAULTS.filter(t => t.id !== tradeId);
+            state.addedPhases = new Set(
+                Array.from(state.addedPhases).filter(id => !id.startsWith(tradeId))
+            );
+            if (state.activeTrade === tradeId) {
+                state.activeTrade = DEFAULTS[0].id;
+            }
+            renderTrades();
+        }
+
+        function addNewTrade() {
+            const newId = 'trade_' + Date.now();
+            const newTrade = {
+                id: newId,
+                name: 'New Trade',
+                color: '#' + Math.floor(Math.random()*16777215).toString(16),
+                phases: [
+                    {
+                        name: 'Phase 1',
+                        order: '',
+                        symbolName: '',
+                        layerCode: '',
+                        items: [
+                            { text: 'New item', done: false, quantity: '' }
+                        ]
+                    }
+                ]
+            };
+            DEFAULTS.push(newTrade);
+            state.activeTrade = newId;
+            renderTrades();
+        }
+
+        function toggleItemDone(itemId) {
+            const parts = itemId.split('-');
+            const tradeId = parts[0];
+            const phaseIdx = parseInt(parts[1]);
+            const itemIdx = parseInt(parts[2]);
+            
+            const trade = DEFAULTS.find(t => t.id === tradeId);
+            if (trade) {
+                const item = trade.phases[phaseIdx].items[itemIdx];
+                item.done = !item.done;
+                renderTradeContent();
+                saveState();
+            }
         }
 
         function updateItemText(itemId, value) {
-            const [tradeIdx, phaseIdx, itemIdx] = itemId.split('-').map(Number);
-            DEFAULTS[tradeIdx].phases[phaseIdx].items[itemIdx].text = value;
-            saveState();
+            const parts = itemId.split('-');
+            const tradeId = parts[0];
+            const phaseIdx = parseInt(parts[1]);
+            const itemIdx = parseInt(parts[2]);
+            
+            const trade = DEFAULTS.find(t => t.id === tradeId);
+            if (trade) {
+                trade.phases[phaseIdx].items[itemIdx].text = value;
+                saveState();
+            }
         }
 
         function updateItemQuantity(itemId, value) {
-            const [tradeIdx, phaseIdx, itemIdx] = itemId.split('-').map(Number);
-            DEFAULTS[tradeIdx].phases[phaseIdx].items[itemIdx].quantity = value;
-            saveState();
+            const parts = itemId.split('-');
+            const tradeId = parts[0];
+            const phaseIdx = parseInt(parts[1]);
+            const itemIdx = parseInt(parts[2]);
+            
+            const trade = DEFAULTS.find(t => t.id === tradeId);
+            if (trade) {
+                trade.phases[phaseIdx].items[itemIdx].quantity = value;
+                saveState();
+            }
         }
 
         function deleteItem(itemId) {
-            const [tradeIdx, phaseIdx, itemIdx] = itemId.split('-').map(Number);
-            DEFAULTS[tradeIdx].phases[phaseIdx].items.splice(itemIdx, 1);
-            renderTrades();
-            saveState();
+            const parts = itemId.split('-');
+            const tradeId = parts[0];
+            const phaseIdx = parseInt(parts[1]);
+            const itemIdx = parseInt(parts[2]);
+            
+            const trade = DEFAULTS.find(t => t.id === tradeId);
+            if (trade) {
+                trade.phases[phaseIdx].items.splice(itemIdx, 1);
+                renderTradeContent();
+                saveState();
+            }
         }
 
         function addNewItem(phaseId) {
-            const [tradeIdx, phaseIdx] = phaseId.split('-').map(Number);
-            const newItem = { text: 'New item', done: false, quantity: '' };
-            DEFAULTS[tradeIdx].phases[phaseIdx].items.push(newItem);
-            renderTrades();
-            saveState();
+            const parts = phaseId.split('-');
+            const tradeId = parts[0];
+            const phaseIdx = parseInt(parts[1]);
+            
+            const trade = DEFAULTS.find(t => t.id === tradeId);
+            if (trade) {
+                const newItem = { text: 'New item', done: false, quantity: '' };
+                trade.phases[phaseIdx].items.push(newItem);
+                renderTradeContent();
+                saveState();
+            }
         }
 
         function togglePhaseAdded(phaseId, button) {
@@ -548,15 +794,21 @@
         }
 
         function updatePhaseData(phaseId, field, value) {
-            const [tradeIdx, phaseIdx] = phaseId.split('-').map(Number);
-            const phase = DEFAULTS[tradeIdx].phases[phaseIdx];
-            phase[field] = value;
-            saveState();
+            const parts = phaseId.split('-');
+            const tradeId = parts[0];
+            const phaseIdx = parseInt(parts[1]);
+            
+            const trade = DEFAULTS.find(t => t.id === tradeId);
+            if (trade) {
+                trade.phases[phaseIdx][field] = value;
+                saveState();
+            }
         }
 
         function saveState() {
             localStorage.setItem('tradeChecklistState', JSON.stringify({
                 addedPhases: Array.from(state.addedPhases),
+                activeTrade: state.activeTrade,
                 defaults: DEFAULTS
             }));
         }
@@ -566,22 +818,11 @@
             if (saved) {
                 const data = JSON.parse(saved);
                 state.addedPhases = new Set(data.addedPhases);
-                // Update DEFAULTS with saved data
-                data.defaults.forEach((trade, idx) => {
-                    if (DEFAULTS[idx]) {
-                        trade.phases.forEach((phase, phaseIdx) => {
-                            if (DEFAULTS[idx].phases[phaseIdx]) {
-                                DEFAULTS[idx].phases[phaseIdx].symbolName = phase.symbolName || '';
-                                DEFAULTS[idx].phases[phaseIdx].layerCode = phase.layerCode || '';
-                                DEFAULTS[idx].phases[phaseIdx].items = phase.items || DEFAULTS[idx].phases[phaseIdx].items;
-                            }
-                        });
-                    }
-                });
+                state.activeTrade = data.activeTrade || DEFAULTS[0].id;
+                DEFAULTS = data.defaults || DEFAULTS;
             }
         }
 
-        // Load state and render on page load
         document.addEventListener('DOMContentLoaded', () => {
             loadState();
             renderTrades();
