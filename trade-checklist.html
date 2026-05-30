@@ -34,7 +34,7 @@
 
         .trades-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
             gap: 20px;
             margin-bottom: 30px;
         }
@@ -71,6 +71,21 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .phase-title-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+        }
+
+        .phase-order {
+            font-size: 0.85em;
+            opacity: 0.8;
+            font-style: italic;
         }
 
         .phase-meta {
@@ -110,16 +125,31 @@
             display: flex;
             flex-direction: column;
             gap: 8px;
+            margin-bottom: 10px;
         }
 
         .item {
             background: rgba(255,255,255,0.1);
-            padding: 10px;
+            padding: 12px;
             border-radius: 4px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             font-size: 0.95em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 4px solid #ff6b6b;
+            gap: 10px;
+        }
+
+        .item.done {
+            border-left-color: #51cf66;
+            background: rgba(76, 175, 80, 0.1);
+        }
+
+        .item:hover {
+            transform: translateX(2px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
         .item-content {
@@ -129,20 +159,34 @@
             gap: 8px;
         }
 
-        .item-checkbox {
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
+        .item-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            background: #ff6b6b;
+            color: white;
+            font-weight: bold;
+            flex-shrink: 0;
+            font-size: 0.8em;
+        }
+
+        .item.done .item-status {
+            background: #51cf66;
         }
 
         .item-text {
             flex-grow: 1;
+            word-break: break-word;
         }
 
         .item-controls {
             display: flex;
-            gap: 8px;
+            gap: 6px;
             align-items: center;
+            flex-shrink: 0;
         }
 
         .quantity-input {
@@ -152,8 +196,50 @@
             border-radius: 3px;
             background: rgba(255,255,255,0.95);
             color: #333;
-            font-size: 0.9em;
+            font-size: 0.85em;
             text-align: center;
+        }
+
+        .delete-button {
+            padding: 4px 8px;
+            border: none;
+            border-radius: 3px;
+            background: rgba(255,255,255,0.3);
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.8em;
+            transition: all 0.2s ease;
+        }
+
+        .delete-button:hover {
+            background: rgba(255, 107, 107, 0.8);
+            transform: scale(1.05);
+        }
+
+        .add-item-button {
+            padding: 8px 12px;
+            border: 1px dashed rgba(255,255,255,0.5);
+            border-radius: 3px;
+            background: transparent;
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9em;
+            transition: all 0.2s ease;
+            width: 100%;
+            margin-top: 8px;
+        }
+
+        .add-item-button:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.8);
+        }
+
+        .phase-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
         }
 
         .add-button {
@@ -182,10 +268,40 @@
             background: rgba(76, 175, 80, 1);
         }
 
-        .phase-order {
-            font-size: 0.85em;
-            opacity: 0.8;
-            font-style: italic;
+        .status-legend {
+            background: rgba(0,0,0,0.1);
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 20px;
+            font-size: 0.9em;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-box {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            border-left: 4px solid;
+        }
+
+        .legend-box.not-done {
+            border-left-color: #ff6b6b;
+            background: #ff6b6b;
+            opacity: 0.3;
+        }
+
+        .legend-box.done {
+            border-left-color: #51cf66;
+            background: #51cf66;
+            opacity: 0.3;
         }
     </style>
 </head>
@@ -193,6 +309,16 @@
     <div class="container">
         <h1>Trade Checklist</h1>
         <div class="trades-grid" id="tradesContainer"></div>
+        <div class="status-legend">
+            <div class="legend-item">
+                <div class="legend-box not-done"></div>
+                <span>Not Done - Click to mark as done</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box done"></div>
+                <span>Done - Click to mark as not done</span>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -207,12 +333,12 @@
                         symbolName: '',
                         layerCode: '',
                         items: [
-                            'peg and set out site',
-                            'confirm levels with surveyor',
-                            'excavation to correct depth',
-                            'install stormwater before slab',
-                            'termite treatment before slab',
-                            'blinding layer laid'
+                            { text: 'peg and set out site', done: false, quantity: '' },
+                            { text: 'confirm levels with surveyor', done: false, quantity: '' },
+                            { text: 'excavation to correct depth', done: false, quantity: '' },
+                            { text: 'install stormwater before slab', done: false, quantity: '' },
+                            { text: 'termite treatment before slab', done: false, quantity: '' },
+                            { text: 'blinding layer laid', done: false, quantity: '' }
                         ]
                     },
                     {
@@ -221,11 +347,11 @@
                         symbolName: '',
                         layerCode: '',
                         items: [
-                            'foundations cast to engineer spec',
-                            'DPC membrane laid',
-                            'all underground services in before slab',
-                            'slab cast and cured min 7 days',
-                            'slab levels checked'
+                            { text: 'foundations cast to engineer spec', done: false, quantity: '' },
+                            { text: 'DPC membrane laid', done: false, quantity: '' },
+                            { text: 'all underground services in before slab', done: false, quantity: '' },
+                            { text: 'slab cast and cured min 7 days', done: false, quantity: '' },
+                            { text: 'slab levels checked', done: false, quantity: '' }
                         ]
                     },
                     {
@@ -234,11 +360,11 @@
                         symbolName: '',
                         layerCode: '',
                         items: [
-                            'brickwork to plate height',
-                            'lintels over all openings',
-                            'roof structure erected',
-                            'roof covering complete and waterproof',
-                            'windows and external doors installed'
+                            { text: 'brickwork to plate height', done: false, quantity: '' },
+                            { text: 'lintels over all openings', done: false, quantity: '' },
+                            { text: 'roof structure erected', done: false, quantity: '' },
+                            { text: 'roof covering complete and waterproof', done: false, quantity: '' },
+                            { text: 'windows and external doors installed', done: false, quantity: '' }
                         ]
                     },
                     {
@@ -247,12 +373,12 @@
                         symbolName: '',
                         layerCode: '',
                         items: [
-                            'internal plaster',
-                            'screed',
-                            'skirtings',
-                            'internal doors hung',
-                            'paint',
-                            'snag list completed and signed off'
+                            { text: 'internal plaster', done: false, quantity: '' },
+                            { text: 'screed', done: false, quantity: '' },
+                            { text: 'skirtings', done: false, quantity: '' },
+                            { text: 'internal doors hung', done: false, quantity: '' },
+                            { text: 'paint', done: false, quantity: '' },
+                            { text: 'snag list completed and signed off', done: false, quantity: '' }
                         ]
                     }
                 ]
@@ -267,10 +393,10 @@
                         symbolName: '',
                         layerCode: '',
                         items: [
-                            'confirm drainage layout matches floor plan',
-                            'FD positions set before slab pour',
-                            'fall direction confirmed min 1:40',
-                            'coordinate with plumber on shared drains'
+                            { text: 'confirm drainage layout matches floor plan', done: false, quantity: '' },
+                            { text: 'FD positions set before slab pour', done: false, quantity: '' },
+                            { text: 'fall direction confirmed min 1:40', done: false, quantity: '' },
+                            { text: 'coordinate with plumber on shared drains', done: false, quantity: '' }
                         ]
                     },
                     {
@@ -279,11 +405,11 @@
                         symbolName: '',
                         layerCode: '',
                         items: [
-                            'sewer pipes laid to correct fall',
-                            'stormwater pipes laid',
-                            'manholes built to correct invert level',
-                            'inspection eyes positioned',
-                            'all pipes bedded in sand'
+                            { text: 'sewer pipes laid to correct fall', done: false, quantity: '' },
+                            { text: 'stormwater pipes laid', done: false, quantity: '' },
+                            { text: 'manholes built to correct invert level', done: false, quantity: '' },
+                            { text: 'inspection eyes positioned', done: false, quantity: '' },
+                            { text: 'all pipes bedded in sand', done: false, quantity: '' }
                         ]
                     },
                     {
@@ -292,10 +418,10 @@
                         symbolName: '',
                         layerCode: '',
                         items: [
-                            'CCTV or rod test all drains',
-                            'water test all junctions no leaks',
-                            'invert levels surveyed and recorded',
-                            'municipality inspection passed'
+                            { text: 'CCTV or rod test all drains', done: false, quantity: '' },
+                            { text: 'water test all junctions no leaks', done: false, quantity: '' },
+                            { text: 'invert levels surveyed and recorded', done: false, quantity: '' },
+                            { text: 'municipality inspection passed', done: false, quantity: '' }
                         ]
                     }
                 ]
@@ -322,19 +448,32 @@
                     const isAdded = state.addedPhases.has(phaseId);
                     const orderText = phase.order ? ` <span class="phase-order">(${phase.order})</span>` : '';
                     
-                    const itemsHTML = phase.items.map(item => `<div class="item">
-                        <div class="item-content">
-                            <span class="item-text">✓ ${item}</span>
-                        </div>
-                    </div>`).join('');
+                    const itemsHTML = phase.items.map((item, itemIdx) => {
+                        const itemId = `${phaseId}-${itemIdx}`;
+                        const doneClass = item.done ? 'done' : '';
+                        return `<div class="item ${doneClass}" onclick="toggleItemDone('${itemId}')">
+                            <div class="item-content">
+                                <div class="item-status">${item.done ? '✓' : '×'}</div>
+                                <input type="text" class="item-text" value="${item.text}" onchange="updateItemText('${itemId}', this.value)" onclick="event.stopPropagation()">
+                            </div>
+                            <div class="item-controls">
+                                <input type="number" class="quantity-input" placeholder="Qty" value="${item.quantity || ''}" onchange="updateItemQuantity('${itemId}', this.value)" onclick="event.stopPropagation()">
+                                <button class="delete-button" onclick="deleteItem('${itemId}'); event.stopPropagation();">Delete</button>
+                            </div>
+                        </div>`;
+                    }).join('');
 
                     phasesHTML += `
                         <div class="phase">
                             <h3>
-                                <span>${phase.name}${orderText}</span>
-                                <button class="add-button ${isAdded ? 'added' : ''}" onclick="togglePhaseAdded('${phaseId}', this)">
-                                    ${isAdded ? '✓ Added' : 'Add'}
-                                </button>
+                                <div class="phase-title-wrapper">
+                                    <span>${phase.name}${orderText}</span>
+                                </div>
+                                <div class="phase-buttons">
+                                    <button class="add-button ${isAdded ? 'added' : ''}" onclick="togglePhaseAdded('${phaseId}', this)">
+                                        ${isAdded ? '✓ Added' : 'Add'}
+                                    </button>
+                                </div>
                             </h3>
                             <div class="phase-meta">
                                 <div class="meta-field">
@@ -349,6 +488,7 @@
                             <div class="items-container">
                                 ${itemsHTML}
                             </div>
+                            <button class="add-item-button" onclick="addNewItem('${phaseId}')">+ Add New Item</button>
                         </div>
                     `;
                 });
@@ -357,6 +497,41 @@
                 card.innerHTML = `<h2>${trade.name}</h2>${phasesHTML}`;
                 container.appendChild(card);
             });
+        }
+
+        function toggleItemDone(itemId) {
+            const [tradeIdx, phaseIdx, itemIdx] = itemId.split('-').map(Number);
+            const item = DEFAULTS[tradeIdx].phases[phaseIdx].items[itemIdx];
+            item.done = !item.done;
+            renderTrades();
+            saveState();
+        }
+
+        function updateItemText(itemId, value) {
+            const [tradeIdx, phaseIdx, itemIdx] = itemId.split('-').map(Number);
+            DEFAULTS[tradeIdx].phases[phaseIdx].items[itemIdx].text = value;
+            saveState();
+        }
+
+        function updateItemQuantity(itemId, value) {
+            const [tradeIdx, phaseIdx, itemIdx] = itemId.split('-').map(Number);
+            DEFAULTS[tradeIdx].phases[phaseIdx].items[itemIdx].quantity = value;
+            saveState();
+        }
+
+        function deleteItem(itemId) {
+            const [tradeIdx, phaseIdx, itemIdx] = itemId.split('-').map(Number);
+            DEFAULTS[tradeIdx].phases[phaseIdx].items.splice(itemIdx, 1);
+            renderTrades();
+            saveState();
+        }
+
+        function addNewItem(phaseId) {
+            const [tradeIdx, phaseIdx] = phaseId.split('-').map(Number);
+            const newItem = { text: 'New item', done: false, quantity: '' };
+            DEFAULTS[tradeIdx].phases[phaseIdx].items.push(newItem);
+            renderTrades();
+            saveState();
         }
 
         function togglePhaseAdded(phaseId, button) {
@@ -398,6 +573,7 @@
                             if (DEFAULTS[idx].phases[phaseIdx]) {
                                 DEFAULTS[idx].phases[phaseIdx].symbolName = phase.symbolName || '';
                                 DEFAULTS[idx].phases[phaseIdx].layerCode = phase.layerCode || '';
+                                DEFAULTS[idx].phases[phaseIdx].items = phase.items || DEFAULTS[idx].phases[phaseIdx].items;
                             }
                         });
                     }
