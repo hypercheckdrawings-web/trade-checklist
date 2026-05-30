@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trade Checklist</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .trades-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .trade-card {
+            border-radius: 8px;
+            padding: 20px;
+            color: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .trade-card h2 {
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .phase {
+            margin-bottom: 15px;
+            background: rgba(0,0,0,0.1);
+            padding: 12px;
+            border-radius: 4px;
+        }
+
+        .phase h3 {
+            font-size: 1.1em;
+            margin-bottom: 8px;
+        }
+
+        .phase ul {
+            list-style: none;
+            padding-left: 15px;
+        }
+
+        .phase li {
+            padding: 4px 0;
+            font-size: 0.95em;
+        }
+
+        .phase li:before {
+            content: "✓ ";
+            margin-right: 8px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Trade Checklist</h1>
+        <div class="trades-grid" id="tradesContainer"></div>
+    </div>
+
+    <script>
+        const DEFAULTS = [
+            {
+                name: 'Construction',
+                color: '#a5d6a7',
+                phases: [
+                    {
+                        name: 'Site Preparation',
+                        order: 'do first',
+                        items: [
+                            'peg and set out site',
+                            'confirm levels with surveyor',
+                            'excavation to correct depth',
+                            'install stormwater before slab',
+                            'termite treatment before slab',
+                            'blinding layer laid'
+                        ]
+                    },
+                    {
+                        name: 'Foundation',
+                        order: '',
+                        items: [
+                            'foundations cast to engineer spec',
+                            'DPC membrane laid',
+                            'all underground services in before slab',
+                            'slab cast and cured min 7 days',
+                            'slab levels checked'
+                        ]
+                    },
+                    {
+                        name: 'Structure',
+                        order: '',
+                        items: [
+                            'brickwork to plate height',
+                            'lintels over all openings',
+                            'roof structure erected',
+                            'roof covering complete and waterproof',
+                            'windows and external doors installed'
+                        ]
+                    },
+                    {
+                        name: 'Finishes',
+                        order: 'do last',
+                        items: [
+                            'internal plaster',
+                            'screed',
+                            'skirtings',
+                            'internal doors hung',
+                            'paint',
+                            'snag list completed and signed off'
+                        ]
+                    }
+                ]
+            },
+            {
+                name: 'Drainage',
+                color: '#80cbc4',
+                phases: [
+                    {
+                        name: 'Rough-in',
+                        order: 'first',
+                        items: [
+                            'confirm drainage layout matches floor plan',
+                            'FD positions set before slab pour',
+                            'fall direction confirmed min 1:40',
+                            'coordinate with plumber on shared drains'
+                        ]
+                    },
+                    {
+                        name: 'Installation',
+                        order: '',
+                        items: [
+                            'sewer pipes laid to correct fall',
+                            'stormwater pipes laid',
+                            'manholes built to correct invert level',
+                            'inspection eyes positioned',
+                            'all pipes bedded in sand'
+                        ]
+                    },
+                    {
+                        name: 'Testing and sign-off',
+                        order: 'last',
+                        items: [
+                            'CCTV or rod test all drains',
+                            'water test all junctions no leaks',
+                            'invert levels surveyed and recorded',
+                            'municipality inspection passed'
+                        ]
+                    }
+                ]
+            }
+        ];
+
+        function renderTrades() {
+            const container = document.getElementById('tradesContainer');
+            container.innerHTML = '';
+
+            DEFAULTS.forEach(trade => {
+                const card = document.createElement('div');
+                card.className = 'trade-card';
+                card.style.backgroundColor = trade.color;
+
+                let phasesHTML = '';
+                trade.phases.forEach(phase => {
+                    const itemsHTML = phase.items.map(item => `<li>${item}</li>`).join('');
+                    const orderText = phase.order ? ` (${phase.order})` : '';
+                    phasesHTML += `
+                        <div class="phase">
+                            <h3>${phase.name}${orderText}</h3>
+                            <ul>${itemsHTML}</ul>
+                        </div>
+                    `;
+                });
+
+                card.innerHTML = `
+                    <h2>${trade.name}</h2>
+                    ${phasesHTML}
+                `;
+
+                container.appendChild(card);
+            });
+        }
+
+        // Render trades on page load
+        document.addEventListener('DOMContentLoaded', renderTrades);
+    </script>
+</body>
+</html>
