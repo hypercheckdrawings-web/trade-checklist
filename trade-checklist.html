@@ -153,63 +153,57 @@
             display: block;
         }
 
-        .trades-grid {
+        .symbols-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
             gap: 20px;
             margin-bottom: 30px;
         }
 
-        .trade-card {
+        .symbol-card {
             border-radius: 8px;
             padding: 20px;
             color: white;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
-        .trade-card h2 {
-            margin-bottom: 15px;
-            font-size: 1.5em;
-            border-bottom: 2px solid rgba(255,255,255,0.3);
-            padding-bottom: 10px;
-        }
-
-        .phases-container {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .phase {
-            background: rgba(0,0,0,0.15);
-            padding: 15px;
-            border-radius: 6px;
-        }
-
-        .phase h3 {
-            font-size: 1.1em;
-            margin-bottom: 12px;
+        .symbol-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(255,255,255,0.3);
         }
 
-        .phase-title-wrapper {
+        .symbol-header h2 {
+            font-size: 1.2em;
+            margin: 0;
+        }
+
+        .symbol-delete-button {
+            background: transparent;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.5em;
+            opacity: 0.7;
+            transition: opacity 0.2s ease;
+            padding: 0;
+            width: 30px;
+            height: 30px;
             display: flex;
             align-items: center;
-            gap: 8px;
-            flex: 1;
+            justify-content: center;
         }
 
-        .phase-order {
-            font-size: 0.85em;
-            opacity: 0.8;
-            font-style: italic;
+        .symbol-delete-button:hover {
+            opacity: 1;
+            color: #ff6b6b;
         }
 
-        .phase-meta {
+        .symbol-meta {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
@@ -301,6 +295,17 @@
         .item-text {
             flex-grow: 1;
             word-break: break-word;
+            background: transparent;
+            border: none;
+            color: inherit;
+            font-size: inherit;
+        }
+
+        .item-text:focus {
+            outline: none;
+            background: rgba(255,255,255,0.2);
+            padding: 2px 4px;
+            border-radius: 2px;
         }
 
         .item-controls {
@@ -321,7 +326,7 @@
             text-align: center;
         }
 
-        .delete-button {
+        .delete-item-button {
             padding: 4px 8px;
             border: none;
             border-radius: 3px;
@@ -333,7 +338,7 @@
             transition: all 0.2s ease;
         }
 
-        .delete-button:hover {
+        .delete-item-button:hover {
             background: rgba(255, 107, 107, 0.8);
             transform: scale(1.05);
         }
@@ -355,12 +360,6 @@
         .add-item-button:hover {
             background: rgba(255,255,255,0.1);
             border-color: rgba(255,255,255,0.8);
-        }
-
-        .phase-buttons {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
         }
 
         .add-button {
@@ -387,6 +386,24 @@
 
         .add-button.added:hover {
             background: rgba(76, 175, 80, 1);
+        }
+
+        .add-symbol-button {
+            padding: 12px 24px;
+            border: 2px dashed rgba(255,255,255,0.5);
+            border-radius: 6px;
+            background: transparent;
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1em;
+            transition: all 0.2s ease;
+            grid-column: 1 / -1;
+        }
+
+        .add-symbol-button:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.8);
         }
 
         .status-legend {
@@ -455,10 +472,9 @@
                 id: 'construction',
                 name: 'Construction',
                 color: '#a5d6a7',
-                phases: [
+                symbols: [
                     {
-                        name: 'Site Preparation',
-                        order: 'do first',
+                        id: 'const-sym-1',
                         symbolName: '',
                         layerCode: '',
                         items: [
@@ -469,46 +485,6 @@
                             { text: 'termite treatment before slab', done: false, quantity: '' },
                             { text: 'blinding layer laid', done: false, quantity: '' }
                         ]
-                    },
-                    {
-                        name: 'Foundation',
-                        order: '',
-                        symbolName: '',
-                        layerCode: '',
-                        items: [
-                            { text: 'foundations cast to engineer spec', done: false, quantity: '' },
-                            { text: 'DPC membrane laid', done: false, quantity: '' },
-                            { text: 'all underground services in before slab', done: false, quantity: '' },
-                            { text: 'slab cast and cured min 7 days', done: false, quantity: '' },
-                            { text: 'slab levels checked', done: false, quantity: '' }
-                        ]
-                    },
-                    {
-                        name: 'Structure',
-                        order: '',
-                        symbolName: '',
-                        layerCode: '',
-                        items: [
-                            { text: 'brickwork to plate height', done: false, quantity: '' },
-                            { text: 'lintels over all openings', done: false, quantity: '' },
-                            { text: 'roof structure erected', done: false, quantity: '' },
-                            { text: 'roof covering complete and waterproof', done: false, quantity: '' },
-                            { text: 'windows and external doors installed', done: false, quantity: '' }
-                        ]
-                    },
-                    {
-                        name: 'Finishes',
-                        order: 'do last',
-                        symbolName: '',
-                        layerCode: '',
-                        items: [
-                            { text: 'internal plaster', done: false, quantity: '' },
-                            { text: 'screed', done: false, quantity: '' },
-                            { text: 'skirtings', done: false, quantity: '' },
-                            { text: 'internal doors hung', done: false, quantity: '' },
-                            { text: 'paint', done: false, quantity: '' },
-                            { text: 'snag list completed and signed off', done: false, quantity: '' }
-                        ]
                     }
                 ]
             },
@@ -516,10 +492,9 @@
                 id: 'drainage',
                 name: 'Drainage',
                 color: '#80cbc4',
-                phases: [
+                symbols: [
                     {
-                        name: 'Rough-in',
-                        order: 'first',
+                        id: 'drain-sym-1',
                         symbolName: '',
                         layerCode: '',
                         items: [
@@ -528,38 +503,13 @@
                             { text: 'fall direction confirmed min 1:40', done: false, quantity: '' },
                             { text: 'coordinate with plumber on shared drains', done: false, quantity: '' }
                         ]
-                    },
-                    {
-                        name: 'Installation',
-                        order: '',
-                        symbolName: '',
-                        layerCode: '',
-                        items: [
-                            { text: 'sewer pipes laid to correct fall', done: false, quantity: '' },
-                            { text: 'stormwater pipes laid', done: false, quantity: '' },
-                            { text: 'manholes built to correct invert level', done: false, quantity: '' },
-                            { text: 'inspection eyes positioned', done: false, quantity: '' },
-                            { text: 'all pipes bedded in sand', done: false, quantity: '' }
-                        ]
-                    },
-                    {
-                        name: 'Testing and sign-off',
-                        order: 'last',
-                        symbolName: '',
-                        layerCode: '',
-                        items: [
-                            { text: 'CCTV or rod test all drains', done: false, quantity: '' },
-                            { text: 'water test all junctions no leaks', done: false, quantity: '' },
-                            { text: 'invert levels surveyed and recorded', done: false, quantity: '' },
-                            { text: 'municipality inspection passed', done: false, quantity: '' }
-                        ]
                     }
                 ]
             }
         ];
 
         const state = {
-            addedPhases: new Set(),
+            addedSymbols: new Set(),
             activeTrade: DEFAULTS[0].id
         };
 
@@ -602,15 +552,14 @@
                 tradeContent.className = `trade-content ${isActive ? 'active' : ''}`;
                 tradeContent.id = `trade-${trade.id}`;
 
-                let phasesHTML = '<div class="phases-container">';
+                let symbolsHTML = '<div class="symbols-grid">';
                 
-                trade.phases.forEach((phase, phaseIdx) => {
-                    const phaseId = `${trade.id}-${phaseIdx}`;
-                    const isAdded = state.addedPhases.has(phaseId);
-                    const orderText = phase.order ? ` <span class="phase-order">(${phase.order})</span>` : '';
+                trade.symbols.forEach((symbol, symbolIdx) => {
+                    const symbolId = `${trade.id}-${symbolIdx}`;
+                    const isAdded = state.addedSymbols.has(symbolId);
                     
-                    const itemsHTML = phase.items.map((item, itemIdx) => {
-                        const itemId = `${phaseId}-${itemIdx}`;
+                    const itemsHTML = symbol.items.map((item, itemIdx) => {
+                        const itemId = `${symbolId}-${itemIdx}`;
                         const doneClass = item.done ? 'done' : '';
                         return `<div class="item ${doneClass}" onclick="toggleItemDone('${itemId}')">
                             <div class="item-content">
@@ -619,43 +568,46 @@
                             </div>
                             <div class="item-controls">
                                 <input type="number" class="quantity-input" placeholder="Qty" value="${item.quantity || ''}" onchange="updateItemQuantity('${itemId}', this.value)" onclick="event.stopPropagation()">
-                                <button class="delete-button" onclick="deleteItem('${itemId}'); event.stopPropagation();">Delete</button>
+                                <button class="delete-item-button" onclick="deleteItem('${itemId}'); event.stopPropagation();">Delete</button>
                             </div>
                         </div>`;
                     }).join('');
 
-                    phasesHTML += `
-                        <div class="phase">
-                            <h3>
-                                <div class="phase-title-wrapper">
-                                    <span>${phase.name}${orderText}</span>
-                                </div>
-                                <div class="phase-buttons">
-                                    <button class="add-button ${isAdded ? 'added' : ''}" onclick="togglePhaseAdded('${phaseId}', this)">
-                                        ${isAdded ? '✓ Added' : 'Add'}
-                                    </button>
-                                </div>
-                            </h3>
-                            <div class="phase-meta">
+                    symbolsHTML += `
+                        <div class="symbol-card" style="background-color: ${trade.color};">
+                            <div class="symbol-header">
+                                <h2>Symbol ${symbolIdx + 1}</h2>
+                                <button class="symbol-delete-button" onclick="deleteSymbol('${symbolId}')">×</button>
+                            </div>
+                            <div class="symbol-meta">
                                 <div class="meta-field">
                                     <label>Symbol Name</label>
-                                    <input type="text" placeholder="Enter symbol name" value="${phase.symbolName || ''}" onchange="updatePhaseData('${phaseId}', 'symbolName', this.value)">
+                                    <input type="text" placeholder="Enter symbol name" value="${symbol.symbolName || ''}" onchange="updateSymbolData('${symbolId}', 'symbolName', this.value)">
                                 </div>
                                 <div class="meta-field">
                                     <label>Layer Code</label>
-                                    <input type="text" placeholder="Enter layer code" value="${phase.layerCode || ''}" onchange="updatePhaseData('${phaseId}', 'layerCode', this.value)">
+                                    <input type="text" placeholder="Enter layer code" value="${symbol.layerCode || ''}" onchange="updateSymbolData('${symbolId}', 'layerCode', this.value)">
                                 </div>
                             </div>
                             <div class="items-container">
                                 ${itemsHTML}
                             </div>
-                            <button class="add-item-button" onclick="addNewItem('${phaseId}')">+ Add New Item</button>
+                            <div style="display: flex; gap: 8px;">
+                                <button class="add-item-button" style="flex: 1;" onclick="addNewItem('${symbolId}')">+ Add Item</button>
+                                <button class="add-button ${isAdded ? 'added' : ''}" onclick="toggleSymbolAdded('${symbolId}', this)">
+                                    ${isAdded ? '✓ Added' : 'Add'}
+                                </button>
+                            </div>
                         </div>
                     `;
                 });
 
-                phasesHTML += '</div>';
-                tradeContent.innerHTML = `<div class="trades-grid"><div class="trade-card" style="background-color: ${trade.color};"><h2>${trade.name}</h2>${phasesHTML}</div></div>`;
+                symbolsHTML += `
+                    <button class="add-symbol-button" onclick="addNewSymbol('${trade.id}')">+ Add Symbol</button>
+                `;
+                symbolsHTML += '</div>';
+
+                tradeContent.innerHTML = symbolsHTML;
                 contentContainer.appendChild(tradeContent);
             });
         }
@@ -679,8 +631,8 @@
                 return;
             }
             DEFAULTS = DEFAULTS.filter(t => t.id !== tradeId);
-            state.addedPhases = new Set(
-                Array.from(state.addedPhases).filter(id => !id.startsWith(tradeId))
+            state.addedSymbols = new Set(
+                Array.from(state.addedSymbols).filter(id => !id.startsWith(tradeId))
             );
             if (state.activeTrade === tradeId) {
                 state.activeTrade = DEFAULTS[0].id;
@@ -694,10 +646,9 @@
                 id: newId,
                 name: 'New Trade',
                 color: '#' + Math.floor(Math.random()*16777215).toString(16),
-                phases: [
+                symbols: [
                     {
-                        name: 'Phase 1',
-                        order: '',
+                        id: newId + '-sym-1',
                         symbolName: '',
                         layerCode: '',
                         items: [
@@ -711,15 +662,49 @@
             renderTrades();
         }
 
+        function addNewSymbol(tradeId) {
+            const trade = DEFAULTS.find(t => t.id === tradeId);
+            if (trade) {
+                const newSymbolId = tradeId + '-sym-' + Date.now();
+                const newSymbol = {
+                    id: newSymbolId,
+                    symbolName: '',
+                    layerCode: '',
+                    items: [
+                        { text: 'New item', done: false, quantity: '' }
+                    ]
+                };
+                trade.symbols.push(newSymbol);
+                renderTradeContent();
+                saveState();
+            }
+        }
+
+        function deleteSymbol(symbolId) {
+            const parts = symbolId.split('-');
+            const tradeId = parts[0];
+            const symbolIdx = parseInt(parts[1]);
+            
+            const trade = DEFAULTS.find(t => t.id === tradeId);
+            if (trade && trade.symbols.length > 1) {
+                trade.symbols.splice(symbolIdx, 1);
+                state.addedSymbols.delete(symbolId);
+                renderTradeContent();
+                saveState();
+            } else if (trade) {
+                alert('Each trade must have at least one symbol');
+            }
+        }
+
         function toggleItemDone(itemId) {
             const parts = itemId.split('-');
             const tradeId = parts[0];
-            const phaseIdx = parseInt(parts[1]);
+            const symbolIdx = parseInt(parts[1]);
             const itemIdx = parseInt(parts[2]);
             
             const trade = DEFAULTS.find(t => t.id === tradeId);
             if (trade) {
-                const item = trade.phases[phaseIdx].items[itemIdx];
+                const item = trade.symbols[symbolIdx].items[itemIdx];
                 item.done = !item.done;
                 renderTradeContent();
                 saveState();
@@ -729,12 +714,12 @@
         function updateItemText(itemId, value) {
             const parts = itemId.split('-');
             const tradeId = parts[0];
-            const phaseIdx = parseInt(parts[1]);
+            const symbolIdx = parseInt(parts[1]);
             const itemIdx = parseInt(parts[2]);
             
             const trade = DEFAULTS.find(t => t.id === tradeId);
             if (trade) {
-                trade.phases[phaseIdx].items[itemIdx].text = value;
+                trade.symbols[symbolIdx].items[itemIdx].text = value;
                 saveState();
             }
         }
@@ -742,12 +727,12 @@
         function updateItemQuantity(itemId, value) {
             const parts = itemId.split('-');
             const tradeId = parts[0];
-            const phaseIdx = parseInt(parts[1]);
+            const symbolIdx = parseInt(parts[1]);
             const itemIdx = parseInt(parts[2]);
             
             const trade = DEFAULTS.find(t => t.id === tradeId);
             if (trade) {
-                trade.phases[phaseIdx].items[itemIdx].quantity = value;
+                trade.symbols[symbolIdx].items[itemIdx].quantity = value;
                 saveState();
             }
         }
@@ -755,59 +740,59 @@
         function deleteItem(itemId) {
             const parts = itemId.split('-');
             const tradeId = parts[0];
-            const phaseIdx = parseInt(parts[1]);
+            const symbolIdx = parseInt(parts[1]);
             const itemIdx = parseInt(parts[2]);
             
             const trade = DEFAULTS.find(t => t.id === tradeId);
             if (trade) {
-                trade.phases[phaseIdx].items.splice(itemIdx, 1);
+                trade.symbols[symbolIdx].items.splice(itemIdx, 1);
                 renderTradeContent();
                 saveState();
             }
         }
 
-        function addNewItem(phaseId) {
-            const parts = phaseId.split('-');
+        function addNewItem(symbolId) {
+            const parts = symbolId.split('-');
             const tradeId = parts[0];
-            const phaseIdx = parseInt(parts[1]);
+            const symbolIdx = parseInt(parts[1]);
             
             const trade = DEFAULTS.find(t => t.id === tradeId);
             if (trade) {
                 const newItem = { text: 'New item', done: false, quantity: '' };
-                trade.phases[phaseIdx].items.push(newItem);
+                trade.symbols[symbolIdx].items.push(newItem);
                 renderTradeContent();
                 saveState();
             }
         }
 
-        function togglePhaseAdded(phaseId, button) {
-            if (state.addedPhases.has(phaseId)) {
-                state.addedPhases.delete(phaseId);
+        function toggleSymbolAdded(symbolId, button) {
+            if (state.addedSymbols.has(symbolId)) {
+                state.addedSymbols.delete(symbolId);
                 button.classList.remove('added');
                 button.textContent = 'Add';
             } else {
-                state.addedPhases.add(phaseId);
+                state.addedSymbols.add(symbolId);
                 button.classList.add('added');
                 button.textContent = '✓ Added';
             }
             saveState();
         }
 
-        function updatePhaseData(phaseId, field, value) {
-            const parts = phaseId.split('-');
+        function updateSymbolData(symbolId, field, value) {
+            const parts = symbolId.split('-');
             const tradeId = parts[0];
-            const phaseIdx = parseInt(parts[1]);
+            const symbolIdx = parseInt(parts[1]);
             
             const trade = DEFAULTS.find(t => t.id === tradeId);
             if (trade) {
-                trade.phases[phaseIdx][field] = value;
+                trade.symbols[symbolIdx][field] = value;
                 saveState();
             }
         }
 
         function saveState() {
             localStorage.setItem('tradeChecklistState', JSON.stringify({
-                addedPhases: Array.from(state.addedPhases),
+                addedSymbols: Array.from(state.addedSymbols),
                 activeTrade: state.activeTrade,
                 defaults: DEFAULTS
             }));
@@ -817,7 +802,7 @@
             const saved = localStorage.getItem('tradeChecklistState');
             if (saved) {
                 const data = JSON.parse(saved);
-                state.addedPhases = new Set(data.addedPhases);
+                state.addedSymbols = new Set(data.addedSymbols);
                 state.activeTrade = data.activeTrade || DEFAULTS[0].id;
                 DEFAULTS = data.defaults || DEFAULTS;
             }
